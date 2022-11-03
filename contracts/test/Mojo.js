@@ -1,6 +1,5 @@
 const hre = require("hardhat");
-const { assert } = require("chai");
-const { BigNumber } = require("ethers");
+const assert = require('assert');
 
 async function deploy() {
     const Mojo = await hre.ethers.getContractFactory("Mojo");
@@ -14,31 +13,48 @@ describe("Mojo", () => {
     const mojo = await deploy();
     // checks msg.sender balance is 100
     const [owner] = await hre.ethers.getSigners();
-    assert.equal(await mojo.balanceOf(owner.address), 100);
+    assert.equal(await mojo.balanceOf(owner.address), 100, "The owner balance should be 100");
   });
   it("Make transactions", async () => {
     // random addresses
     const tx = [{
-        address: "0x29D7d1dd5B6f9C864d9db560D72a247c178aE86B",
-        amount: BigNumber.from("10"),
+        address: "0xdb5892B33b2587Fc94D0fb6b484efA99Ab280779",
+        amount: 10,
     },{
-        address: "0xf07ba2229b4da47895ce0a4ab4298ad7f8cb3a4d",
-        amount: BigNumber.from("20"),
+        address: "0x85E3aeaf4d29deF5d87E2C7dc936aDe69F0f461c",
+        amount: 20,
     },{
-        address: "0x29d7d1dd5b6f9c864d9db560d72a247c178ae86b",
-        amount: BigNumber.from("30"),
+        address: "0x3615eba8b7A015C7214d1e5589C82C0111855619",
+        amount: 30,
     }];
 
     const mojo = await deploy();
-
-    console.log("aaaa")
     
-    for(const {address, ammount} of tx)  // maybe a better aproach could be with Promises.all([transactions])
-        await mojo.transfer(address, ammount);
+    // make transactions
+    await Promise.all(tx.map(({address, amount}) => mojo.transfer(address, amount)))
 
     // check balances
-    for(const {address, ammount} of tx)
-        assert.equal(await mojo.balanceOf(address), ammount)
-  })
+    for (const {address, amount} of tx)
+        assert.equal(await mojo.balanceOf(address), amount, "Addresses balances are wrong")
+  });
+  it("Check changeDelay function", async () => {
+    const NEW_DELAY = 15;
+    const mojo = await deploy();
+
+    await mojo.changeDelay(NEW_DELAY);
+    const delay = await mojo.blockDelay();
+    
+    assert.equal(delay, NEW_DELAY);
+  });
+  it("Check mint time restrictions", async () => {
+    const mojo = await deploy();
+
+    const failedMint = false;
+    await mojo.mint(5, "0xceB62238A8F6ef1C8F8BF1BdE49DD9cF461E4e75"); // Random adresses
+    await mojo.mint(5, "0xC50F44e32d4Caf9Eb3bAD6A0497b5a405479DfC5")
+              .catch(err => failedMint = true);
+    assert.ok(failedMint);
+  });
+
 })
 
