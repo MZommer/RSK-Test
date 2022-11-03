@@ -1,11 +1,11 @@
 const hre = require("hardhat");
 const assert = require('assert');
 
-async function deploy() {
-    const Mojo = await hre.ethers.getContractFactory("Mojo");
-    const mojo = await Mojo.deploy();
-    await mojo.deployed();
-    return mojo;
+async function deploy(contract = "Mojo") {
+    const _contract = await hre.ethers.getContractFactory(contract);
+    const instance = await _contract.deploy();
+    await instance.deployed();
+    return instance;
 }
 
 describe("Mojo", () => {
@@ -43,7 +43,7 @@ describe("Mojo", () => {
 
     await mojo.changeDelay(NEW_DELAY);
     const delay = await mojo.blockDelay();
-    
+
     assert.equal(delay, NEW_DELAY);
   });
   it("Check mint time restrictions", async () => {
@@ -55,6 +55,12 @@ describe("Mojo", () => {
               .catch(err => failedMint = true);
     assert.ok(failedMint);
   });
+  it("Check starPlayer generation", async () => {
+    const mojo = await deploy();
+    const gacha = await deploy("Gacha");
 
+    
+
+  })
 })
 
