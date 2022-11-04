@@ -12,8 +12,8 @@ contract Avatar is ERC721 {
 
     Gacha _gacha;
 
-    constructor(address gachaAddress) ERC721("Avatar", "AVA") {
-        _gacha = Gacha(gachaAddress);
+    constructor(Gacha pGacha) ERC721("Avatar", "AVA") {
+        _gacha = pGacha;
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -26,7 +26,7 @@ contract Avatar is ERC721 {
         _safeMint(to, tokenId);
     }
     function mint(address to) public {
-        require(_gacha.hasRole(to, _gacha.STAR_PLAYER), "You must be a star player to mint");
+        require(_gacha.isStarPlayer(to), "You must be a star player to mint");
         safeMint(to);
     }
 }

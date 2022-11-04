@@ -1,30 +1,26 @@
 // contracts/Gacha.sol
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Roles.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./Mojo.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Gacha is AccessControl {
-    using Roles for Roles.Role;
-    Roles.Role private _starPlayers;
-    
+contract Gacha is AccessControl {    
     bytes32 public constant STAR_PLAYER = keccak256("STAR_PLAYER");
     uint16 public minStarPlayerBalance = 10;
-    Mojo token;
+    IERC20 token;
     mapping(address => uint256) private _balances;
-    constructor(address mojoAddress) {
-        token = Mojo(mojoAddress);
+    constructor(IERC20 pToken) {
+        token = pToken;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function deposit() payable external {
-        // record the value sent 
-        // to the address that sent it
-        _balances[msg.sender] += msg.value;
+    function isStarPlayer(address addr) public view returns(bool) {
+        return hasRole(STAR_PLAYER, addr);
     }
-    function balanceOf(address addr) view {
+
+    function balanceOf(address addr) public view returns(uint256) {
         return _balances[addr];
     }
     function makeStarPlayer(address addr) private {
@@ -36,7 +32,8 @@ contract Gacha is AccessControl {
    
    function AcceptPayment(uint256 _tokenamount) public returns(bool) {
        require(_tokenamount > GetAllowance(), "Please approve tokens before transferring");
-       token.transfer(address(this), _tokenamount);
+       token.transfer(msg.sender, _tokenamount);
+       makeStarPlayer(msg.sender);
        return true;
     }
     // https://dapp-world.com/smartbook/accept-an-erc20-token-as-payment-in-smart-contract-zsqV
