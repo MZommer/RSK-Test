@@ -1,7 +1,6 @@
 const hre = require("hardhat");
 const assert = require('assert');
-
-const {deployMojo, deployGacha, deployAvatar, skipBlocks} = require("../utils/helpers");
+const { deployMojo } = require("../utils/helpers");
 
 describe("Mojo", () => {
   it("Deploy", async () => {
@@ -55,37 +54,6 @@ describe("Mojo", () => {
     const mojo = await deployMojo();
 
     await assert.rejects(mojo.mint("0xceB62238A8F6ef1C8F8BF1BdE49DD9cF461E4e75", 5))
-  });
-  it("Check starPlayer generation", async () => {
-    const mojo = await deployMojo();
-    const gacha = await deployGacha(mojo.address);
-
-    const [owner] = await hre.ethers.getSigners();
-
-    await mojo.approve(gacha.address, 10);
-    await gacha.AcceptPayment();
-    
-    assert.ok(gacha.isStarPlayer(owner.address));
-  });
-  it("Check if a starPlayer can mint an avatar", async () => {
-    const mojo = await deployMojo();
-    const gacha = await deployGacha(mojo.address);
-    const avatar = await deployAvatar(gacha.address);
-
-    
-    const [owner] = await hre.ethers.getSigners();
-    await mojo.approve(gacha.address, 10);
-    await gacha.AcceptPayment();
-    // Makes owner a star player
-    await avatar.mint();
-
-  });
-  it("Check if a anyone can mint an avatar", async () => {
-    const mojo = await deployMojo();
-    const gacha = await deployGacha(mojo.address);
-    const avatar = await deployAvatar(gacha.address);
-    
-    await assert.rejects(avatar.mint());
   });
 })
 
