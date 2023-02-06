@@ -3,10 +3,6 @@ const assert = require('assert');
 
 const {deployMojo, deployGacha, deployAvatar, skipBlocks} = require("../utils/helpers");
 
-//provider.send('evm_mine', [])
-//provider.send('evm_increaeTime', [1000])
-//https://ethereum.stackexchange.com/questions/86633/time-dependent-tests-with-hardhat
-
 describe("Mojo", () => {
   it("Deploy", async () => {
     const mojo = await deployMojo();
